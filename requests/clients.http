@@ -1,0 +1,89 @@
+### Get all clients
+GET http://localhost:6968/api/clients
+
+### Get client by ID
+GET http://localhost:6968/api/clients/123456
+
+### Get client libraries
+GET http://localhost:6968/api/clients/123456/libraries
+
+### Get client fonts
+GET http://localhost:6968/api/clients/123456/fonts
+
+### Get all fonts
+GET http://localhost:6968/api/fonts
+
+### Add a new font
+POST http://localhost:6968/api/fonts
+Content-Type: application/json
+
+{
+  "name": "Arial",
+  "filePath": "/fonts/arial.ttf"
+}
+
+### Get font by ID
+GET http://localhost:6968/api/fonts/1
+
+### Get all libraries
+GET http://localhost:6968/api/libraries
+
+### Create a new library
+POST http://localhost:6968/api/libraries
+Content-Type: application/json
+
+{
+  "name": "Corporate Fonts",
+  "description": "Fonts used in corporate communications"
+}
+
+### Get library by ID
+GET http://localhost:6968/api/libraries/1
+
+### Add font to library
+POST http://localhost:6968/api/libraries/1/fonts
+Content-Type: application/json
+
+{
+  "fontId": 1
+}
+
+### Get all groups
+GET http://localhost:6968/api/groups
+
+### Create a new group
+POST http://localhost:6968/api/groups
+Content-Type: application/json
+
+{
+  "name": "Design Team",
+  "description": "Graphic designers and UI/UX specialists"
+}
+
+### Get group by ID
+GET http://localhost:6968/api/groups/1
+
+### Add client to group
+POST http://localhost:6968/api/groups/1/clients
+Content-Type: application/json
+
+{
+  "clientId": "123456"
+}
+
+### Add library to group
+POST http://localhost:6968/api/groups/1/libraries
+Content-Type: application/json
+
+{
+  "libraryId": 1
+}
+
+### Get font usage analytics
+GET http://localhost:6968/api/analytics/font-usage
+
+### Get user activity analytics
+GET http://localhost:6968/api/analytics/user-activity
+
+### Get library distribution analytics
+GET http://localhost:6968/api/analytics/library-distribution
