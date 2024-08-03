@@ -39,9 +39,18 @@ export class ExpressServer {
     }
 
     private setupUpload() {
+        //Creates the data/uploads/fonts directory if it doesn't exist and the data/permanent/fonts directory
+        if (!fs.existsSync('data/uploads/fonts')) {
+            fs.mkdirSync('data/uploads/fonts', {recursive: true});
+        }
+        if (!fs.existsSync('data/permanent/fonts')) {
+            fs.mkdirSync('data/permanent/fonts', {recursive: true});
+        }
+
+
         const storage = multer.diskStorage({
             destination: (req, file, cb) => {
-                cb(null, 'data/uploads/fonts/');
+                cb(null, 'data/uploads/fonts');
             },
             filename: (req, file, cb) => {
                 const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
@@ -78,7 +87,10 @@ export class ExpressServer {
         this.app.get('/api/libraries', this.getLibraries.bind(this));
         this.app.post('/api/libraries', this.createLibrary.bind(this));
         this.app.get('/api/libraries/:libraryId', this.getLibraryById.bind(this));
+        this.app.put('/api/libraries/:libraryId', this.updateLibrary.bind(this));
+        this.app.get('/api/libraries/:libraryId/fonts', this.getLibraryFonts.bind(this));
         this.app.post('/api/libraries/:libraryId/fonts', this.addFontToLibrary.bind(this));
+        this.app.delete('/api/libraries/:libraryId/fonts/:fontId', this.removeFontFromLibrary.bind(this));
 
         // Group routes
         this.app.get('/api/groups', this.getGroups.bind(this));
@@ -99,6 +111,38 @@ export class ExpressServer {
         });
     }
 
+
+    private async updateLibrary(req: express.Request, res: express.Response) {
+        const {libraryId} = req.params;
+        const {name, description} = req.body;
+        try {
+            await this.database.updateLibrary(parseInt(libraryId), name, description);
+            const updatedLibrary = await this.database.getLibraryById(parseInt(libraryId));
+            res.json(updatedLibrary);
+        } catch (error) {
+            res.status(500).json({error: 'Failed to update library'});
+        }
+    }
+
+    private async getLibraryFonts(req: express.Request, res: express.Response) {
+        const {libraryId} = req.params;
+        try {
+            const fonts = await this.database.getLibraryFonts(parseInt(libraryId));
+            res.json(fonts);
+        } catch (error) {
+            res.status(500).json({error: 'Failed to fetch library fonts'});
+        }
+    }
+
+    private async removeFontFromLibrary(req: express.Request, res: express.Response) {
+        const {libraryId, fontId} = req.params;
+        try {
+            await this.database.unassignFontFromLibrary(parseInt(fontId), parseInt(libraryId));
+            res.json({success: true, message: 'Font removed from library'});
+        } catch (error) {
+            res.status(500).json({error: 'Failed to remove font from library'});
+        }
+    }
 
     private async assignClientLibraries(req: express.Request, res: express.Response) {
         const {clientId} = req.params;

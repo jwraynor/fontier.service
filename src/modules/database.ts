@@ -240,6 +240,29 @@ export class Database {
         `, [clientHWID, clientHWID]);
     }
 
+    async updateLibrary(libraryId: number, name: string, description: string): Promise<void> {
+        await this.run(
+            'UPDATE libraries SET name = ?, description = ?, updated_at = datetime("now") WHERE id = ?',
+            [name, description, libraryId]
+        );
+    }
+
+    async getLibraryFonts(libraryId: number): Promise<any[]> {
+        return this.all(`
+        SELECT f.*
+        FROM fonts f
+        JOIN font_libraries fl ON f.id = fl.font_id
+        WHERE fl.library_id = ?
+    `, [libraryId]);
+    }
+
+    async unassignFontFromLibrary(fontId: number, libraryId: number): Promise<void> {
+        await this.run(
+            'DELETE FROM font_libraries WHERE font_id = ? AND library_id = ?',
+            [fontId, libraryId]
+        );
+    }
+
     async getClientGroups(clientHWID: string): Promise<any[]> {
         return this.all(`
             SELECT g.*
@@ -373,7 +396,6 @@ export class Database {
         */
         throw new Error('getClientUptime method not implemented');
     }
-
 
 
     async getClientActivityAnalytics(): Promise<{ date: string, active_clients: number }[]> {
